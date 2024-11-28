@@ -46,7 +46,6 @@ const Page = () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     }
 
-    router.refresh();
     setLoading(false);
   });
 

@@ -13,14 +13,13 @@ import {
 } from "../../components/ui/sidebar.tsx";
 import { Button } from "../../components/ui/button.tsx";
 import { LayoutDashboard, MessageCircle, Presentation, CreditCard, Plus } from "lucide-react";
-import React, { useState } from "react";
 
 import { usePathname } from "next/navigation";
 import { cn } from "../../lib/utils.ts";
 import Link from "next/link";
 import { useSidebar } from "../../components/ui/sidebar.tsx";
-import { useQuery } from "@tanstack/react-query";
-import { Project } from "@prisma/client";
+import { Project } from "@prisma/client ";
+import { useProject } from "../../hooks/use-project.tsx";
 
 const items = [
   {
@@ -48,16 +47,8 @@ const items = [
 export default function AppSidebar() {
   const pathname = usePathname();
   const { open } = useSidebar();
-  const [projectId, setProjectId] = useState<string>();
 
-  const {
-    data: projects,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["projects"],
-    queryFn: () => fetch("/api/get-all-projects").then((res) => res.json()),
-  });
+  const { projects, isLoading, isError, setProjectId, projectId } = useProject();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
