@@ -1,7 +1,8 @@
 import React from "react";
-import { SidebarProvider } from "../../components/ui/sidebar.tsx";
 import { UserButton } from "@clerk/nextjs";
 import AppSidebar from "./AppSidebar.tsx";
+import { SidebarProvider } from "../../components/ui/sidebar.tsx";
+
 type SidebarLayoutProps = {
   children: React.ReactNode;
 };

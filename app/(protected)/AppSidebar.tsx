@@ -13,13 +13,14 @@ import {
 } from "../../components/ui/sidebar.tsx";
 import { Button } from "../../components/ui/button.tsx";
 import { LayoutDashboard, MessageCircle, Presentation, CreditCard, Plus } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 import { usePathname } from "next/navigation";
 import { cn } from "../../lib/utils.ts";
 import Link from "next/link";
-import Image from "next/image";
 import { useSidebar } from "../../components/ui/sidebar.tsx";
+import { useQuery } from "@tanstack/react-query";
+import { Project } from "@prisma/client";
 
 const items = [
   {
@@ -44,23 +45,19 @@ const items = [
   },
 ];
 
-const projects = [
-  {
-    name: "Project 1",
-    id: "1",
-  },
-  {
-    name: "Project 2",
-  },
-  {
-    name: "Project 3",
-    id: "3",
-  },
-];
-
 export default function AppSidebar() {
   const pathname = usePathname();
   const { open } = useSidebar();
+  const [projectId, setProjectId] = useState<string>();
+
+  const {
+    data: projects,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => fetch("/api/get-all-projects").then((res) => res.json()),
+  });
 
   return (
     <Sidebar collapsible="icon" variant="floating">
@@ -104,25 +101,33 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.map((project) => (
-                <SidebarMenuItem key={project.name}>
-                  <SidebarMenuButton asChild>
-                    <div>
-                      <div
-                        className={cn(
-                          "rounded-md border text-sm flex items-center justify-center bg-white text-primary p-2 ",
-                          {
-                            "!bg-primary !text-white": true,
-                          }
-                        )}
-                      >
-                        {project.name[0]}
+              {isLoading ? (
+                <div className="flex items-center justify-center p-4">
+                  <div className="animate-pulse h-8 w-full bg-gray-200 rounded" />
+                </div>
+              ) : isError ? (
+                <div className="text-sm text-red-500 p-4">Failed to load projects</div>
+              ) : (
+                projects?.map((project: Project) => (
+                  <SidebarMenuItem key={project.id}>
+                    <SidebarMenuButton asChild>
+                      <div onClick={() => setProjectId(project.id)} className="cursor-pointer my-1">
+                        <div
+                          className={cn(
+                            "rounded-md border text-sm flex items-center justify-center bg-white text-primary p-2 ",
+                            {
+                              "!bg-primary !text-white": projectId === project.id,
+                            }
+                          )}
+                        >
+                          {project.name[0]}
+                        </div>
+                        {open && <span className="text-xs">{project.name}</span>}
                       </div>
-                      {open && <span className="text-xs">{project.name}</span>}
-                    </div>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))
+              )}
               <div className="h-2">
                 <SidebarMenuItem>
                   <Link.default href="/create">

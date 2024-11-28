@@ -12,6 +12,9 @@ import { createProject } from "../../../server/router/projects.ts";
 import { toast } from "sonner";
 import { useState } from "react";
 import Spinner from "../../../components/ui/spinner.tsx";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+
 export const FormInputsSchema = z.object({
   repoUrl: z.string().min(1),
   projectName: z.string().min(1),
@@ -19,8 +22,10 @@ export const FormInputsSchema = z.object({
 });
 
 const Page = () => {
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormInputsSchema>>({
     resolver: zodResolver(FormInputsSchema),
     defaultValues: {
@@ -38,7 +43,10 @@ const Page = () => {
       toast.error("Error creating project");
     } else {
       toast.success("Project created successfully");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     }
+
+    router.refresh();
     setLoading(false);
   });
 

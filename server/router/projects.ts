@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { checkAuth } from "./protected.ts";
-import db from "@/lib/db";
+import db from "../../lib/db.ts";
 
 const projectSchema = z.object({
   repoUrl: z.string().min(1),
@@ -18,6 +18,7 @@ export const createProject = checkAuth(
     if (!parsedData.success) {
       return { error: parsedData.error.errors };
     }
+
     const project = await db.project.create({
       data: {
         githubUrl: parsedData.data.repoUrl,
@@ -34,3 +35,14 @@ export const createProject = checkAuth(
     return { success: "Project created successfully" };
   }
 );
+
+export const getAllProjects = checkAuth(async (userId: string) => {
+  console.log("getting all projects");
+  const projects = await db.project.findMany({
+    where: {
+      userToProject: { some: { userId } },
+    },
+  });
+
+  return projects;
+});
