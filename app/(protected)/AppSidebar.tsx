@@ -14,9 +14,13 @@ import {
 import { Button } from "../../components/ui/button.tsx";
 import { LayoutDashboard, MessageCircle, Presentation, CreditCard, Plus } from "lucide-react";
 import React from "react";
-import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 import { cn } from "../../lib/utils.ts";
+import Link from "next/link";
+import Image from "next/image";
+import { useSidebar } from "../../components/ui/sidebar.tsx";
+
 const items = [
   {
     title: "Dashboard",
@@ -56,10 +60,20 @@ const projects = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { open } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader>Logo</SidebarHeader>
+      <SidebarHeader>
+        <div className="flex items-center gap-2">
+          <img src="/logo.svg" alt="logo" width={40} height={40} />
+          {open && (
+            <h1 className="text-2xl font-bold text-primary text-nowrap overflow-hidden">
+              Code Reviewer
+            </h1>
+          )}
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -68,8 +82,7 @@ export default function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    {/* @ts-ignore */}
-                    <Link
+                    <Link.default
                       href={item.url}
                       className={cn(
                         {
@@ -80,7 +93,7 @@ export default function AppSidebar() {
                     >
                       <item.icon />
                       <span>{item.title}</span>
-                    </Link>
+                    </Link.default>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -97,7 +110,7 @@ export default function AppSidebar() {
                     <div>
                       <div
                         className={cn(
-                          "rounded-md border text-sm flex items-center justify-center bg-white text-primary p-2 w-12 ",
+                          "rounded-md border text-sm flex items-center justify-center bg-white text-primary p-2 ",
                           {
                             "!bg-primary !text-white": true,
                           }
@@ -105,20 +118,19 @@ export default function AppSidebar() {
                       >
                         {project.name[0]}
                       </div>
-                      <span className="text-xs">{project.name}</span>
+                      {open && <span className="text-xs">{project.name}</span>}
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
               <div className="h-2">
                 <SidebarMenuItem>
-                  {/* @ts-ignore */}
-                  <Link href="/create">
+                  <Link.default href="/create">
                     <Button variant="outline" className="w-full my-2">
                       <Plus />
-                      Create Project
+                      {open && "Create Project"}
                     </Button>
-                  </Link>
+                  </Link.default>
                 </SidebarMenuItem>
               </div>
             </SidebarMenu>
