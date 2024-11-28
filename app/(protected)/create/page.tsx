@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Form } from "../../../components/ui/form.tsx";
 import { Input } from "../../../components/ui/input.tsx";
 import { Button } from "../../../components/ui/button.tsx";
@@ -9,18 +8,19 @@ import { FormField, FormItem, FormControl, FormMessage } from "../../../componen
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-const FormInputsSchema = z.object({
-  repoUrl: z.string().url(),
+import { createProject } from "../../../server/router/projects.ts";
+import { toast } from "sonner";
+import { useState } from "react";
+import Spinner from "../../../components/ui/spinner.tsx";
+export const FormInputsSchema = z.object({
+  repoUrl: z.string().min(1),
   projectName: z.string().min(1),
   githubToken: z.string().optional(),
 });
 
-const onSubmit = (data: z.infer<typeof FormInputsSchema>) => {
-  console.log(data);
-};
-
 const Page = () => {
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof FormInputsSchema>>({
     resolver: zodResolver(FormInputsSchema),
     defaultValues: {
@@ -28,6 +28,18 @@ const Page = () => {
       projectName: "",
       githubToken: "",
     },
+  });
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    setLoading(true);
+    const response = await createProject(data);
+    console.log(response);
+    if (response.error) {
+      toast.error("Error creating project");
+    } else {
+      toast.success("Project created successfully");
+    }
+    setLoading(false);
   });
 
   return (
@@ -41,10 +53,7 @@ const Page = () => {
           </p>
           <div>
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-2 max-w-3xl mx-auto py-4"
-              >
+              <form onSubmit={handleSubmit} className="space-y-2 max-w-3xl mx-auto py-4">
                 <FormField
                   control={form.control}
                   name="repoUrl"
@@ -87,7 +96,9 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Submit</Button>
+                <Button disabled={loading} type="submit" className="w-20">
+                  {loading ? <Spinner /> : "Submit"}
+                </Button>
               </form>
             </Form>
           </div>
