@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
-import db from "@/lib/db";
+import db from "../../lib/db.ts";
 
 export default async function Page() {
   const { userId } = await auth();
