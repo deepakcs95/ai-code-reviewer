@@ -1,10 +1,11 @@
 import { Octokit } from "octokit";
 import db from "../lib/db.ts";
+import axios from "axios";
+import { generateAiSummary } from "./gemini.ts";
+
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
-
-const githuburl = "https://github.com/deepakcs20/image-comparator";
 
 type response = {
   commitHash: string;
@@ -40,11 +41,36 @@ export const getCommitHashes = async (githubUrl: string): Promise<response[]> =>
   }));
 };
 
-const pollCommits = async (projectId: string) => {
+export const pollCommits = async (projectId: string) => {
   const { githubUrl } = (await fetchProjectGithubUrl(projectId)) as { githubUrl: string };
   const commitHashes = await getCommitHashes(githubUrl);
   const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes);
-  return unprocessedCommits;
+  const summarieResponses = await Promise.allSettled(
+    unprocessedCommits.map((commit) => summarizeCommit(githubUrl, commit.commitHash))
+  );
+
+  const summaries = summarieResponses.map((response) => {
+    if (response?.status === "fulfilled") {
+      return response.value as string;
+    }
+    return "";
+  });
+
+  const commits = await db.commit.createMany({
+    data: summaries.map((summary, index) => {
+      return {
+        projectId,
+        commitHash: unprocessedCommits[index].commitHash,
+        commitMessage: unprocessedCommits[index].commitMessage,
+        commitAuthorName: unprocessedCommits[index].commitAuthorName,
+        commitAuthorAvatar: unprocessedCommits[index].commitAuthorAvatar,
+        commitDate: unprocessedCommits[index].commitDate,
+        summary: summary,
+      };
+    }),
+  });
+
+  return commits;
 };
 
 async function fetchProjectGithubUrl(projectId: string) {
@@ -69,4 +95,13 @@ async function filterUnprocessedCommits(projectId: string, commitHashes: respons
   return unprocessedCommits;
 }
 
-console.log(await pollCommits("cm41jlhk0000i96iu1kelrxyq"));
+// console.log(await pollCommits("cm41jlhk0000i96iu1kelrxyq"));
+
+async function summarizeCommit(githubUrl: string, commitHash: string) {
+  const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
+    headers: {
+      Accept: "application/vnd.github.v3.diff",
+    },
+  });
+  return generateAiSummary(data) || "";
+}

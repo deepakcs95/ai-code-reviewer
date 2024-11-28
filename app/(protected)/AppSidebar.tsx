@@ -20,7 +20,9 @@ import Link from "next/link";
 import { useSidebar } from "../../components/ui/sidebar.tsx";
 import { Project } from "@prisma/client ";
 import { useProject } from "../../hooks/use-project.tsx";
-
+import React from "react";
+import { Trash2 } from "lucide-react";
+import Spinner from "../../components/ui/spinner.tsx";
 const items = [
   {
     title: "Dashboard",
@@ -48,7 +50,7 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const { open } = useSidebar();
 
-  const { projects, isLoading, isError, setProjectId, projectId } = useProject();
+  const { projects, isLoading, isError, setProjectId, projectId, deleteProject } = useProject();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
@@ -114,6 +116,17 @@ export default function AppSidebar() {
                           {project.name[0]}
                         </div>
                         {open && <span className="text-xs">{project.name}</span>}
+                        {open && (
+                          <Button
+                            disabled={deleteProject.isPending}
+                            onClick={() => deleteProject.mutate(project.id)}
+                            variant="ghost"
+                            size="icon"
+                            className="ml-auto"
+                          >
+                            {deleteProject.isPending ? <Spinner /> : <Trash2 />}
+                          </Button>
+                        )}
                       </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

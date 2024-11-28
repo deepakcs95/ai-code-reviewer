@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-export const generateSummary = async (diff: string) => {
+export const generateAiSummary = async (diff: string) => {
   // https://github.com/username/repository/commit/commit_hash.diff
 
   const response = await model.generateContent(
@@ -64,7 +64,7 @@ index 0000000..e20a3b6
 +Branch : Electronics and Communication
 +Year : 2012-2016
 Expected Output:
-CopyCommit Summary:
+ 
 * Added new author file with team member details
   * Created 'author' file with 4 lines of information
   * Recorded team member names, college, branch, and graduation year
@@ -83,7 +83,7 @@ index 5f4a3d1..9b2e7f3 100644
      }
  }
 Expected Output:
-CopyCommit Summary:
+ 
  * Updated database configuration settings
   * Changed database port from 5432 to 5433
   * Added SSL configuration for database connection

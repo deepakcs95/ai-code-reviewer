@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { checkAuth } from "./protected.ts";
 import db from "../../lib/db.ts";
+import { pollCommits } from "../../lib/github.ts";
 
 const projectSchema = z.object({
   repoUrl: z.string().min(1),
@@ -32,6 +33,8 @@ export const createProject = checkAuth(
       },
     });
 
+    await pollCommits(project.id);
+
     return { success: "Project created successfully" };
   }
 );
@@ -46,3 +49,36 @@ export const getAllProjects = checkAuth(async (userId: string) => {
 
   return projects;
 });
+
+export const deleteProject = async (projectId: string, userId: string) => {
+  try {
+    // Verify the association between the project and the user
+    const userProject = await db.userProject.findFirst({
+      where: {
+        projectId: projectId,
+        userId: userId,
+      },
+    });
+
+    if (!userProject) {
+      console.error("No association found between user and project");
+      return { error: "Unauthorized or project not found" };
+    }
+
+    // Delete the project
+    await db.project.delete({
+      where: { id: projectId },
+    });
+
+    console.log("Project deleted successfully");
+    return { success: "Project deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting project", error);
+    return { error: "Error deleting project" };
+  }
+};
+
+export const getCommits = async (projectId: string) => {
+  const commits = await db.commit.findMany({ where: { projectId } });
+  return commits;
+};

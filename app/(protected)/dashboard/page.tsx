@@ -4,6 +4,7 @@ import React from "react";
 import { useProject } from "../../../hooks/use-project.tsx";
 import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import CommitLog from "./commit-log.tsx";
 export default function Page() {
   const { project } = useProject();
 
@@ -11,7 +12,6 @@ export default function Page() {
     <div>
       <div className="flex items-center justify-between flex-wrap gap-y-4">
         {/* github link */}
-        {project.id}
         <div className="w-fit rounded-md bg-primary px-4 py-3 flex items-center">
           <Github className="text-white size-6" />
           <div className="ml-2  ">
@@ -37,7 +37,9 @@ export default function Page() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">Ask</div>
       </div>
       <div className="mt-4">
-        <div className="flex items-center gap-4">Commit</div>
+        <div className="flex items-center gap-4">
+          <CommitLog />
+        </div>
       </div>
     </div>
   );
