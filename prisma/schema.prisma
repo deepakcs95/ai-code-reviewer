@@ -20,10 +20,11 @@ model User {
   lastName      String?
   userToProject UserProject[]
   questions     Question[]
+  paymentTransactions PaymentTransaction[]
 }
 
 model Project {
-  id                   String                 @id @default(cuid())
+  id                   String                 @id 
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   name                 String
@@ -88,5 +89,15 @@ model Question {
 
 
   userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PaymentTransaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  credits Int
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

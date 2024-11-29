@@ -8,12 +8,13 @@ import { FormField, FormItem, FormControl, FormMessage } from "../../../componen
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Info } from "lucide-react";
 import { createProject } from "../../../server/router/projects.ts";
 import { toast } from "sonner";
 import { useState } from "react";
 import Spinner from "../../../components/ui/spinner.tsx";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { getCredits } from "../../../server/router/credits.ts";
 
 export const FormInputsSchema = z.object({
   repoUrl: z.string().min(1),
@@ -25,7 +26,7 @@ const Page = () => {
   const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+
   const form = useForm<z.infer<typeof FormInputsSchema>>({
     resolver: zodResolver(FormInputsSchema),
     defaultValues: {
@@ -45,7 +46,6 @@ const Page = () => {
       toast.success("Project created successfully");
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     }
-
     setLoading(false);
   });
 
@@ -103,6 +103,9 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
+
+                <Credits />
+
                 <Button disabled={loading} type="submit" className="w-20">
                   {loading ? <Spinner /> : "Submit"}
                 </Button>
@@ -116,3 +119,31 @@ const Page = () => {
 };
 
 export default Page;
+
+const Credits = () => {
+  const {
+    data: credits,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["credits"],
+    queryFn: getCredits,
+  });
+
+  if (isLoading) return null;
+  if (error) return null;
+
+  if (credits?.error) return null;
+
+  return (
+    <div className="flex my-4 flex-col gap-2 bg-orange-50 px-4 py-2 rounded-md border border-orange-200 text-orange-700">
+      <div className="flex items-center gap-2">
+        <Info className="w-4 h-4" />
+        <p className="text-sm">
+          You have {credits?.credits} credits remaining. Each credits allows you to index single
+          file in the repository.
+        </p>
+      </div>
+    </div>
+  );
+};

@@ -6,7 +6,6 @@ import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import CommitLog from "./commit-log.tsx";
 import AskQuestionCard from "./ask-question-card.tsx";
-import InviteMembers from "./invite-members.tsx";
 export default function Page() {
   const { project } = useProject();
 
@@ -35,10 +34,6 @@ export default function Page() {
               </Link.default>
             </p>
           </div>
-        </div>
-
-        <div className="mt-4 flex items-center gap-4">
-          <InviteMembers />
         </div>
       </div>
 
