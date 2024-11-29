@@ -4,7 +4,7 @@ import { z } from "zod";
 import { checkAuth } from "./protected.ts";
 import db from "../../lib/db.ts";
 import { pollCommits } from "../../lib/github.ts";
-
+import { indexGithubRepo } from "../../lib/github-loader.ts";
 const projectSchema = z.object({
   repoUrl: z.string().min(1),
   projectName: z.string().min(1),
@@ -34,7 +34,7 @@ export const createProject = checkAuth(
     });
 
     await pollCommits(project.id);
-
+    await indexGithubRepo(project.id, project.githubUrl, project.githubToken || "");
     return { success: "Project created successfully" };
   }
 );

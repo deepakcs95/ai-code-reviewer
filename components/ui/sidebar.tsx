@@ -11,7 +11,7 @@ import { Button } from "./button.tsx";
 import { Input } from "./input.tsx";
 import { Separator } from "./separator.tsx";
 import { Sheet, SheetContent } from "./sheet.tsx";
-import { Skeleton } from "./skeleton.tsx";
+import Skeleton from "./skeleton.tsx";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip.tsx";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";

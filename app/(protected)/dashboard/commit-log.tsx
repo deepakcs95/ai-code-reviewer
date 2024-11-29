@@ -40,12 +40,13 @@ export default function CommitLog() {
                 href={`${project?.githubUrl}/commit/${commit.commitHash}`}
               >
                 <span className="text-sm font-medium leading-6 text-gray-900">
-                  {commit.commitMessage}{" "}
+                  {commit.commitAuthorName}{" "}
                 </span>
                 <span className="inline-flex items-center gap-x-1 text-semibold text-gray-500">
                   commited
                   <ExternalLink />
                 </span>
+                <p className="text-xl text-black font-semibold">{commit.commitMessage}</p>
                 <pre className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-500">
                   {commit.summary}
                 </pre>

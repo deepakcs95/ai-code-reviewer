@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { deleteProject } from "../../../server/router/projects.ts";
 import { auth } from "@clerk/nextjs/server";
-
+import { revalidatePath } from "next/cache";
 export async function POST(request: Request) {
   const { userId } = await auth();
 
@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   }
   try {
     await deleteProject(projectId, userId);
+    revalidatePath("/");
     return NextResponse.json({ success: "Project deleted successfully" });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete project" });

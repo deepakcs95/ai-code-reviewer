@@ -124,7 +124,12 @@ export default function AppSidebar() {
                             size="icon"
                             className="ml-auto"
                           >
-                            {deleteProject.isPending ? <Spinner /> : <Trash2 />}
+                            {(project.id === projectId && deleteProject.isPending) ||
+                            deleteProject.isSuccess ? (
+                              <Spinner />
+                            ) : (
+                              <Trash2 />
+                            )}
                           </Button>
                         )}
                       </div>
