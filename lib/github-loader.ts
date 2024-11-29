@@ -1,6 +1,7 @@
 import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 import { Document } from "@langchain/core/documents";
 import { summarizeCode, generateEmbedding } from "./gemini.ts";
+import db from "./db.ts";
 
 export const githubLoader = async (githubUrl: string, githubToken?: string) => {
   const loader = new GithubRepoLoader(githubUrl, {
@@ -25,7 +26,28 @@ export const indexGithubRepo = async (
   const docs = await githubLoader(githubUrl, githubToken);
 
   const allEmbeddings = await generateEmbeddings(docs);
-  console.log("allEmbeddings", allEmbeddings);
+
+  await Promise.allSettled(
+    allEmbeddings.map(async (embedding, index) => {
+      console.log("processing embedding", index, allEmbeddings.length);
+      if (!embedding.summary) return;
+
+      const sourceCodeEmbedding = await db.sourceCodeEmbeddings.create({
+        data: {
+          summary: embedding.summary,
+          sourceCode: embedding.sourceCode,
+          filename: embedding.fileName,
+          projectId,
+        },
+      });
+
+      await db.$executeRaw`
+      UPDATE "SourceCodeEmbeddings"
+      SET "summaryEmbedding" = ${embedding.embedding}::vector
+      WHERE "id" = ${sourceCodeEmbedding.id}
+      `;
+    })
+  );
 };
 
 const generateEmbeddings = async (docs: Document[]) => {
