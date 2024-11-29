@@ -12,7 +12,7 @@ import {
   SidebarMenu,
 } from "../../components/ui/sidebar.tsx";
 import { Button } from "../../components/ui/button.tsx";
-import { LayoutDashboard, MessageCircle, Presentation, CreditCard, Plus } from "lucide-react";
+import { LayoutDashboard, MessageCircle, CreditCard, Plus } from "lucide-react";
 
 import { usePathname } from "next/navigation";
 import { cn } from "../../lib/utils.ts";
@@ -34,11 +34,7 @@ const items = [
     url: "/qa",
     icon: MessageCircle,
   },
-  {
-    title: "Meetings",
-    url: "/meetings",
-    icon: Presentation,
-  },
+
   {
     title: "Billing",
     url: "/billing",

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { UserButton } from "@clerk/nextjs";
-import AppSidebar from "./AppSidebar.tsx";
+import AppSidebar from "./app-sidebar.tsx";
 import { SidebarProvider } from "../../components/ui/sidebar.tsx";
 
 type SidebarLayoutProps = {

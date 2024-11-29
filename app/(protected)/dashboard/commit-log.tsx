@@ -3,7 +3,7 @@
 import React from "react";
 import { useProject } from "../../../hooks/use-project.tsx";
 import { useQuery } from "@tanstack/react-query";
-import { getCommits } from "../../../server/router/projects.ts";
+import { getCommits } from "../../../server/actions/projects.ts";
 import Skeleton from "../../../components/ui/skeleton.tsx";
 
 import { Commit } from "@prisma/client";

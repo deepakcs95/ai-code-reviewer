@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useProject } from "../../../hooks/use-project.tsx";
 import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/card.tsx";
 import { Textarea } from "../../../components/ui/textarea.tsx";
@@ -12,12 +12,12 @@ import {
   DialogTitle,
 } from "../../../components/ui/dialog.tsx";
 import { toast } from "sonner";
-import { askQuestion } from "../../../server/router/question.ts";
+import { askQuestion } from "../../../server/actions/question.ts";
 import { readStreamableValue } from "ai/rsc";
 import Spinner from "../../../components/ui/spinner.tsx";
 import CodeReferences from "./code-references.tsx";
 import MDEditor from "@uiw/react-md-editor";
-import { saveQuestion } from "../../../server/router/question.ts";
+import { saveQuestion } from "../../../server/actions/question.ts";
 import { useQueryClient } from "@tanstack/react-query";
 // const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -31,7 +31,6 @@ const AskQuestionCard = () => {
     { filename: string; summary: string; sourceCode: string }[]
   >([]);
   const [answer, setAnswer] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
   const queryClient = useQueryClient();
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -84,7 +83,7 @@ const AskQuestionCard = () => {
           </DialogHeader>
           <MDEditor.Markdown
             source={answer}
-            className="  !h-full  max-h-[40vh] overflow-y-scroll p-2"
+            className="h-full max-h-[30vh] overflow-y-scroll p-2"
           />
           <div className="h-4"></div>
           <CodeReferences filesReferences={filesReferenced} />

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getCredits } from "../../../server/router/credits.ts";
+import { getUserCredits } from "../../../server/actions/credits.ts";
 import { Input } from "../../../components/ui/input.tsx";
 import {
   Card,
@@ -16,10 +16,9 @@ import { Button } from "../../../components/ui/button.tsx";
 import { toast } from "sonner";
 import { Slider } from "../../../components/ui/slider.tsx";
 import { Info } from "lucide-react";
-import Skeleton from "../../../components/ui/skeleton.tsx";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import { createPaymentTransaction } from "../../../server/router/credits.ts";
-import { useRouter } from "next/navigation";
+import { createPaymentTransaction } from "../../../server/actions/credits.ts";
+import LoadingScreen from "../../loading.tsx";
 export default function BillingPage() {
   const {
     data: credits,
@@ -27,10 +26,8 @@ export default function BillingPage() {
     error,
   } = useQuery({
     queryKey: ["credits"],
-    queryFn: getCredits,
+    queryFn: getUserCredits,
   });
-
-  const router = useRouter();
 
   const [creditsToBuy, setCreditsToBuy] = useState<number>(100);
 
@@ -38,13 +35,13 @@ export default function BillingPage() {
 
   const [processing, setProcessing] = useState(false);
 
-  if (isLoading) return <Skeleton className="w-full h-20" />;
+  if (isLoading) return <LoadingScreen />;
 
   if (error) return <div>{error.message}</div>;
 
   if (credits?.error) return <div>{credits.error}</div>;
 
-  const onPayPalApprove = async (data: any) => {
+  const onPayPalApprove = async () => {
     console.log("payment approved");
     setProcessing(true);
     const { success, error } = await createPaymentTransaction(creditsToBuy);
@@ -52,7 +49,6 @@ export default function BillingPage() {
     if (success) {
       setProcessing(false);
       toast.success("Payment successful");
-      router.push("/create");
       return;
     }
 
@@ -68,7 +64,7 @@ export default function BillingPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Billing</h1>
       <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
+        <CardHeader className="flex flex-col gap-2 items-center">
           <CardTitle>Credit Balance</CardTitle>
           <CardDescription>You have {credits?.credits} credits remaining.</CardDescription>
         </CardHeader>
@@ -118,8 +114,10 @@ export default function BillingPage() {
           ) : (
             <PayPalButtons
               style={{ layout: "horizontal" }}
-              onApprove={async (data) => await onPayPalApprove(data)}
-              createOrder={(data, actions) => {
+              onApprove={async () => await onPayPalApprove()}
+              onCancel={() => toast.error("Payment cancelled")}
+              onError={(error) => toast.error(error?.message)}
+              createOrder={(_, actions) => {
                 console.log(price);
                 return actions?.order?.create({
                   purchase_units: [{ amount: { value: price, currency_code: "USD" } }],

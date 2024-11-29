@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Sheet,
   SheetTrigger,
@@ -10,7 +10,7 @@ import {
 } from "../../../components/ui/sheet.tsx";
 import { useProject } from "../../../hooks/use-project.tsx";
 import { useQuery } from "@tanstack/react-query";
-import { getQuestions } from "../../../server/router/question.ts";
+import { getQuestions } from "../../../server/actions/question.ts";
 import AskQuestionCard from "../dashboard/ask-question-card.tsx";
 import MDEditor from "@uiw/react-md-editor";
 import CodeReferences from "../dashboard/code-references.tsx";
@@ -18,18 +18,14 @@ import CodeReferences from "../dashboard/code-references.tsx";
 export default function Page() {
   const { projectId } = useProject();
 
-  const [selectedQuestion, setSelectedQuestionIndex] = useState(0);
-
-  if (!projectId) return <div>No project selected</div>;
-
   const { data, isLoading } = useQuery({
     queryKey: ["questions", projectId],
     queryFn: () => getQuestions(projectId),
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (!projectId) return <div>No project selected</div>;
 
-  console.log(data);
+  if (isLoading) return <div>Loading...</div>;
 
   const question = data?.[selectedQuestion];
 

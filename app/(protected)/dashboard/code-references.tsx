@@ -17,7 +17,7 @@ export default function CodeReferences({ filesReferences }: CodeReferencesProps)
   if (filesReferences.length === 0) return null;
 
   return (
-    <div className="max-w-[80vw]">
+    <div className="max-w-[90vw] w-full">
       <Tabs value={tab} onValueChange={setTab}>
         <div className="overflow-y-scroll   flex gap-2 bg-gray-200 p-2 rounded-md">
           {filesReferences.map((file) => (
@@ -41,7 +41,11 @@ export default function CodeReferences({ filesReferences }: CodeReferencesProps)
             key={file.filename}
             className="w-full  overflow-scroll   rounded-md"
           >
-            <SyntaxHighlighter className=" overflow-scroll" language="typescript" style={oneDark}>
+            <SyntaxHighlighter
+              className="max-h-[40vh] overflow-scroll"
+              language="typescript"
+              style={oneDark}
+            >
               {file.sourceCode}
             </SyntaxHighlighter>
           </TabsContent>

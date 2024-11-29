@@ -3,7 +3,7 @@
 import db from "../../lib/db.ts";
 import { auth } from "@clerk/nextjs/server";
 
-export const getCredits = async () => {
+export const getUserCredits = async () => {
   const { userId } = await auth();
 
   if (!userId) return { error: "Unauthorized" };
