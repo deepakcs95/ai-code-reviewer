@@ -2,7 +2,7 @@
 
 import { streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
-
+import { auth } from "@clerk/nextjs/server";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateEmbedding } from "../../lib/gemini.ts";
 import db from "../../lib/db.ts";
@@ -31,7 +31,7 @@ export async function askQuestion(question: string, projectId: string) {
   }
 
   let context = "";
-  console.log("result", result);
+  console.log("result", result.length);
   for (const doc of result) {
     context += `Source: 
     ${doc.filename}
@@ -63,11 +63,33 @@ export async function askQuestion(question: string, projectId: string) {
     for await (const chunk of textStream) {
       stream.update(chunk);
     }
-    console.log("stream done", stream.value);
+    console.log("stream done");
     stream.done();
   })();
 
   return { output: stream.value, filesReferenced: result };
 }
 
-askQuestion("what is the code imageComparator", "cm42bls8o0000qab08u8v39pf");
+export async function saveQuestion(
+  question: string,
+  answer: string,
+  filesReferences: { filename: string; sourceCode: string }[],
+  projectId: string
+) {
+  const { userId } = await auth();
+  if (!userId) return { error: "Unauthorized" };
+  await db.question.create({
+    data: { question, answer, filesReferences, projectId, userId },
+  });
+
+  return { success: true };
+}
+
+export async function getQuestions(projectId: string) {
+  const { userId } = await auth();
+  if (!userId) return { error: "Unauthorized" };
+  return await db.question.findMany({
+    where: { projectId, userId },
+    include: { user: true },
+  });
+}

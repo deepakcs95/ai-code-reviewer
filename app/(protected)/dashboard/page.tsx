@@ -6,9 +6,16 @@ import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import CommitLog from "./commit-log.tsx";
 import AskQuestionCard from "./ask-question-card.tsx";
-
+import InviteMembers from "./invite-members.tsx";
 export default function Page() {
   const { project } = useProject();
+
+  if (!project)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-sm text-gray-500">No project found</p>
+      </div>
+    );
 
   return (
     <div>
@@ -31,7 +38,7 @@ export default function Page() {
         </div>
 
         <div className="mt-4 flex items-center gap-4">
-          <h2 className="text-lg font-medium">Team Members</h2>
+          <InviteMembers />
         </div>
       </div>
 

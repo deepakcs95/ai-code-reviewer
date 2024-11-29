@@ -23,13 +23,21 @@ export default function CommitLog() {
   });
 
   //
+  if (isLoading) return <Skeleton className="w-full h-20" />;
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-sm text-gray-500">Error fetching commits</p>
+      </div>
+    );
 
   return (
     <ul className="space-y-6">
       {commits?.map((commit: Commit) => (
         <li key={commit.id} className="relative flex gap-x-4">
           <img
-            src={commit.commitAuthorAvatar}
+            src={commit.commitAuthorAvatar || "/user.svg"}
             alt={commit.commitAuthorName}
             className="relative mt-4 size-8 flex-none rounded-full bg-gray-50"
           />
